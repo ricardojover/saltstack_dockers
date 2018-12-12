@@ -1,7 +1,7 @@
 # SaltStack Dockers
 Example SaltStack installing Docker-CE
 
-In this project I'm using SaltStack to install the official version of Dockers CE. I download and configure using upstart or systemd (depending on the OS version) a few custom dockers, I use cloud init to configure a template for logstash, etc.
+In this project I'm using SaltStack to install the official version of Dockers CE. I download and configure using upstart or systemd (depending on the OS version) a few custom dockers, I use cloud init to configure a template for logstash (the data in my case is retrieved from my AWS instance's userdata), etc.
 
 ## Deployment
 Replace the values in the files /salt/private/variables.cfg and /pillar/docker_hub/init.sls with your own values.
