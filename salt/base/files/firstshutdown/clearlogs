@@ -1,0 +1,5 @@
+#!/bin/sh
+if test -f /var/log/dmesg; then 
+  rm /var/log/dmesg*
+fi
+find /var/log -type f | xargs truncate -s 0

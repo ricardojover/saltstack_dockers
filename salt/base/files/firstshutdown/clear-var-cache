@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm /var/cache/apt/archives/*deb
+rm -rf /var/*/apt-xapian-index

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd /usr/local/etc/templates
+
+for TMPL in *.tmpl
+do
+  if [ -f "$TMPL" ] ; then rm -f ${TMPL/.tmpl/} ; fi
+done

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ -f /etc/salt/minion ]
+then
+  if grep ^id: /etc/salt/minion > /dev/null
+  then
+    sed -i.bak "s/^id:.*/id: $( hostname )/" /etc/salt/minion
+  else
+    echo "id: $( hostname )" >> /etc/salt/minion
+  fi
+fi

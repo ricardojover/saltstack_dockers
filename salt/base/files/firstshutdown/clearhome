@@ -1,0 +1,2 @@
+#!/bin/sh
+rm -f /root/.ssh/authorized_keys /home/*/.bash_history

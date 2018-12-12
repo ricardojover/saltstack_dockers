@@ -1,0 +1,12 @@
+[Unit]
+Description=Login to docker hub
+After=docker.service
+Requires=docker.service 
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/bin/docker login -u {{ docker_user }} -p {{ docker_password }}
+
+[Install]
+WantedBy=multi-user.target

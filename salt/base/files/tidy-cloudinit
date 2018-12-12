@@ -1,0 +1,3 @@
+#!/bin/sh
+
+rm -rf /var/lib/cloud/data/* /var/lib/cloud/instances/i-*

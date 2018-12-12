@@ -1,0 +1,14 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/wtmp # empty
+
+name: filebeat # This name is important as the name of the indices in logstash are based on this
+
+output.logstash:
+  enabled: true
+  hosts: ["${LOGSTASH_HOST}"]
+
+logging.to_files: false
+

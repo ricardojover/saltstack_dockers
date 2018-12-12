@@ -1,0 +1,55 @@
+#!/bin/sh
+
+set -x
+
+BASEURL="http://169.254.169.254/latest/meta-data"
+
+echo debug:
+hostname
+cat /etc/hostname
+echo ----
+
+# Take the environment and type from the hostname 
+ENV=$( cat /etc/hostname | cut -f1 -d- )
+TYPE=$( cat /etc/hostname | cut -f2 -d- )
+
+# Work out some AWS stuff
+AZ=$( curl -s ${BASEURL}/placement/availability-zone )
+ID=$( curl -s ${BASEURL}/instance-id | sed s/^i-//)
+IP=$( curl -s ${BASEURL}//local-ipv4 )
+
+# See if we can work out the environment by querying AWS directly
+if [ -x /usr/bin/aws ]
+then
+  EC2_REGION=$( echo $AZ | sed s/.$// )
+  EC2_URL=https://ec2.${EC2_REGION}.amazonaws.com
+  AWS_DEFAULT_REGION=${EC2_REGION}
+  export EC2_REGION EC2_URL AWS_DEFAULT_REGION
+
+  COUNT=0
+  xENV=""
+  while [ "x$xENV" = "x" -a $COUNT -lt 10 ]
+  do
+    sleep $COUNT
+    COUNT=$(( $COUNT + 1 ))
+    xENV=$( /usr/bin/aws ec2 describe-tags --output json --filters Name=resource-id,Values=i-$ID Name=key,Values=Env --query 'Tags[*].Value' --output text )
+  done
+
+  if [ "x$xENV" != "x" ]
+  then
+    # We have the env, set it
+    ENV=$xENV
+
+    # We can get the env, try and get the type too
+    xTYPE=$( /usr/bin/aws ec2 describe-tags --output json --filters Name=resource-id,Values=i-$ID Name=key,Values=Type --query 'Tags[*].Value' --output text )
+    if [ "x$xTYPE" != "x" ]
+    then
+      TYPE=$xTYPE
+    fi
+  fi
+fi
+
+hostname $ENV-$TYPE-$ID-$( echo $AZ | sed s/-//g)
+hostname > /etc/hostname
+echo $IP $(hostname) >> /etc/hosts
+service rsyslog restart

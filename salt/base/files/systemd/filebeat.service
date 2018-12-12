@@ -1,0 +1,17 @@
+[Unit]
+Description=filebeat container
+After=docker-login.service docker-mynet.service logstash.service
+Requires=docker-login.service docker-mynet.service logstash.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+TimeoutStartSec=0
+KillMode=none
+Restart=always
+RestartSec=15
+SyslogIdentifier=%p
+ExecStartPre=-/bin/sh -c '/usr/bin/docker rm %p || true'
+ExecStart=/bin/sh -c '/usr/bin/docker run --hostname=`cat /etc/hostname` --net mynet --name filebeat -e LOGSTASH_HOST=logstash:5044 --user root -v /var/lib/docker/containers:/var/lib/docker/containers -v /var/run/docker.sock:/var/run/docker.sock -v /var/log:/var/log --mount type=bind,source=/usr/share/filebeat/filebeat.yml,target=/usr/share/filebeat/filebeat.yml {{ docker_user }}/{{ my_filebeat }}:latest'
+ExecStop=/usr/bin/docker stop %p

@@ -1,0 +1,11 @@
+[Unit]
+Description=Create networkd for beat/stash comms
+After=docker.service
+Requires=docker.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+RemainAfterExit=true
+ExecStart=/usr/bin/docker network create --driver bridge mynet

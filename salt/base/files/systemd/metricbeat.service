@@ -1,0 +1,27 @@
+[Unit]
+Description=metricbeat container
+After=docker-login.service docker-mynet.service logstash.service
+Requires=docker-login.service docker-mynet.service logstash.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+TimeoutStartSec=0
+KillMode=none
+Restart=always
+RestartSec=15
+SyslogIdentifier=%p
+ExecStartPre=-/bin/sh -c '/usr/bin/docker rm %p || true'
+ExecStart=/bin/sh -c "/usr/bin/docker run -e LOGSTASH_HOST=logstash:5044 \
+                --hostname=`cat /etc/hostname` \
+                --name %p \
+                --user=root \
+                --network=mynet \
+                --log-opt max-size=100m --log-opt max-file=3 \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                --mount type=bind,source=/proc,target=/hostfs/proc,readonly \
+                --mount type=bind,source=/sys/fs/cgroup,target=/hostfs/sys/fs/cgroup,readonly \
+                --mount type=bind,source=/,target=/hostfs,readonly \
+                {{ docker_user }}/{{ my_metricbeat }}:latest -system.hostfs=/hostfs"
+ExecStop=/usr/bin/docker stop %p
